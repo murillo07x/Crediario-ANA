@@ -485,31 +485,8 @@
 </head>
 <body>
 
-<!-- ===================== LOGIN ===================== -->
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-mark">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M20 12c-1.5 3.5-4.8 6-8 6s-6.5-2.5-8-6c1.5-3.5 4.8-6 8-6s6.5 2.5 8 6z"/></svg>
-    </div>
-    <h1>Crediário</h1>
-    <p class="sub">Acesso restrito</p>
-    <form id="login-form">
-      <div class="field">
-        <label for="user">Usuário</label>
-        <input type="text" id="user" autocomplete="username" required>
-      </div>
-      <div class="field">
-        <label for="pass">Senha</label>
-        <input type="password" id="pass" autocomplete="current-password" required>
-      </div>
-      <button type="submit" class="btn-primary">Entrar</button>
-      <p class="login-error" id="login-error"></p>
-    </form>
-  </div>
-</div>
-
 <!-- ===================== APP ===================== -->
-<div id="app" hidden>
+<div id="app">
   <header class="topbar">
     <div class="brand">
       <div class="brand-mark">
@@ -521,7 +498,6 @@
       </div>
     </div>
     <div class="top-actions">
-      <button class="btn-ghost" id="btn-logout">Sair</button>
       <button class="btn-solid" id="btn-new">+ Nova venda</button>
     </div>
   </header>
@@ -613,9 +589,7 @@
   "use strict";
 
   /* ---------- CONFIG ---------- */
-  var CREDENTIALS = { user: "ana", pass: "1204" };
   var STORAGE_KEY = "crediario_vendas_v1";
-  var SESSION_KEY = "crediario_sessao_v1";
 
   /* ---------- SAFE STORAGE ----------
      Em alguns contextos (pré-visualização em iframe, modo privado, file:// com
@@ -650,51 +624,10 @@
     delete memoryFallback[key];
   }
 
-  /* ---------- LOGIN ---------- */
-  var loginScreen = document.getElementById("login-screen");
+  /* ---------- INICIALIZAÇÃO (sem login) ---------- */
   var appEl = document.getElementById("app");
-  var loginForm = document.getElementById("login-form");
-  var loginError = document.getElementById("login-error");
-
-  function isLoggedIn(){
-    return ssGet(SESSION_KEY) === "1";
-  }
-
-  function showApp(){
-    loginScreen.hidden = true;
-    appEl.hidden = false;
-    var warn = document.getElementById("storage-warning");
-    if(warn) warn.hidden = storageAvailable;
-    render();
-  }
-
-  function showLogin(){
-    appEl.hidden = true;
-    loginScreen.hidden = false;
-  }
-
-  loginForm.addEventListener("submit", function(e){
-    e.preventDefault();
-    var u = document.getElementById("user").value.trim();
-    var p = document.getElementById("pass").value;
-    if(u === CREDENTIALS.user && p === CREDENTIALS.pass){
-      ssSet(SESSION_KEY, "1");
-      loginError.textContent = "";
-      loginForm.reset();
-      showApp();
-    } else {
-      loginError.textContent = "Usuário ou senha incorretos.";
-    }
-  });
-
-  document.getElementById("btn-logout").addEventListener("click", function(){
-    ssRemove(SESSION_KEY);
-    showLogin();
-  });
-
-  if(isLoggedIn()){
-    showApp();
-  }
+  var warn = document.getElementById("storage-warning");
+  if(warn) warn.hidden = storageAvailable;
 
   /* ---------- DATA ---------- */
   function loadSales(){
@@ -971,6 +904,9 @@
     };
     reader.readAsText(file);
   });
+
+  /* ---------- PRIMEIRA RENDERIZAÇÃO ---------- */
+  render();
 
 })();
 </script>
