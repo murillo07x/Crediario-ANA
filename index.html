@@ -526,6 +526,10 @@
     </div>
   </header>
 
+  <div id="storage-warning" hidden style="background:#f3d7cc;color:#8c3f28;padding:10px 40px;font-size:13px;text-align:center;">
+    Este navegador está bloqueando o armazenamento local — os dados cadastrados agora não serão salvos ao recarregar a página. Baixe o site e abra o arquivo diretamente no navegador, fora de modo privado/anônimo, para os dados ficarem salvos.
+  </div>
+
   <main>
     <section class="summary">
       <div class="summary-card">
@@ -613,6 +617,39 @@
   var STORAGE_KEY = "crediario_vendas_v1";
   var SESSION_KEY = "crediario_sessao_v1";
 
+  /* ---------- SAFE STORAGE ----------
+     Em alguns contextos (pré-visualização em iframe, modo privado, file:// com
+     restrições) o localStorage pode lançar erro. Aqui testamos e, se falhar,
+     caímos para um armazenamento em memória para o app nunca travar. */
+  var memoryFallback = {};
+  var storageAvailable = true;
+  try{
+    var __t = "__crediario_test__";
+    localStorage.setItem(__t, "1");
+    localStorage.removeItem(__t);
+  }catch(err){
+    storageAvailable = false;
+  }
+
+  function ssGet(key){
+    if(storageAvailable){
+      try{ return localStorage.getItem(key); }catch(e){ /* fall through */ }
+    }
+    return Object.prototype.hasOwnProperty.call(memoryFallback, key) ? memoryFallback[key] : null;
+  }
+  function ssSet(key, val){
+    if(storageAvailable){
+      try{ localStorage.setItem(key, val); return; }catch(e){ /* fall through */ }
+    }
+    memoryFallback[key] = val;
+  }
+  function ssRemove(key){
+    if(storageAvailable){
+      try{ localStorage.removeItem(key); return; }catch(e){ /* fall through */ }
+    }
+    delete memoryFallback[key];
+  }
+
   /* ---------- LOGIN ---------- */
   var loginScreen = document.getElementById("login-screen");
   var appEl = document.getElementById("app");
@@ -620,12 +657,14 @@
   var loginError = document.getElementById("login-error");
 
   function isLoggedIn(){
-    return localStorage.getItem(SESSION_KEY) === "1";
+    return ssGet(SESSION_KEY) === "1";
   }
 
   function showApp(){
     loginScreen.hidden = true;
     appEl.hidden = false;
+    var warn = document.getElementById("storage-warning");
+    if(warn) warn.hidden = storageAvailable;
     render();
   }
 
@@ -639,7 +678,7 @@
     var u = document.getElementById("user").value.trim();
     var p = document.getElementById("pass").value;
     if(u === CREDENTIALS.user && p === CREDENTIALS.pass){
-      localStorage.setItem(SESSION_KEY, "1");
+      ssSet(SESSION_KEY, "1");
       loginError.textContent = "";
       loginForm.reset();
       showApp();
@@ -649,7 +688,7 @@
   });
 
   document.getElementById("btn-logout").addEventListener("click", function(){
-    localStorage.removeItem(SESSION_KEY);
+    ssRemove(SESSION_KEY);
     showLogin();
   });
 
@@ -660,7 +699,7 @@
   /* ---------- DATA ---------- */
   function loadSales(){
     try{
-      var raw = localStorage.getItem(STORAGE_KEY);
+      var raw = ssGet(STORAGE_KEY);
       return raw ? JSON.parse(raw) : [];
     }catch(err){
       return [];
@@ -668,7 +707,7 @@
   }
 
   function saveSales(list){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    ssSet(STORAGE_KEY, JSON.stringify(list));
   }
 
   var sales = loadSales();
