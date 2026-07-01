@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crediário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF6F2;
+    --blush:#F4DEE3;
+    --rose:#B6647D;
+    --rose-deep:#8C3F58;
+    --charcoal:#33262B;
+    --gold:#C7A15A;
+    --terracotta:#B85C46;
+    --sage:#7C8F6F;
+    --line:#E8D3D8;
+    --shadow: 0 10px 30px -12px rgba(140,63,88,0.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--charcoal);
+    font-family:'Jost',sans-serif;
+    font-weight:300;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.serif{
+    font-family:'Cormorant Garamond',serif;
+    font-weight:500;
+    letter-spacing:0.01em;
+  }
+  .mono{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:400;
+  }
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select{font-family:inherit;}
+  ::selection{background:var(--blush);}
+
+  /* ---------- LOGIN ---------- */
+  #login-screen{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  #login-screen::before{
+    content:"";
+    position:absolute;
+    width:520px;height:520px;
+    background:radial-gradient(circle, var(--blush) 0%, transparent 70%);
+    top:-160px; right:-160px;
+    opacity:0.9;
+  }
+  #login-screen::after{
+    content:"";
+    position:absolute;
+    width:420px;height:420px;
+    background:radial-gradient(circle, var(--blush) 0%, transparent 70%);
+    bottom:-160px; left:-160px;
+    opacity:0.7;
+  }
+  .login-card{
+    position:relative;
+    z-index:1;
+    background:#fff;
+    border-radius:22px;
+    padding:52px 44px;
+    width:100%;
+    max-width:380px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+    text-align:center;
+  }
+  .login-mark{
+    width:46px;height:46px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    background:var(--blush);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .login-mark svg{width:20px;height:20px;stroke:var(--rose-deep);}
+  .login-card h1{
+    font-size:30px;
+    margin:0 0 4px;
+    color:var(--rose-deep);
+  }
+  .login-card p.sub{
+    margin:0 0 30px;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#a98a94;
+  }
+  .field{
+    text-align:left;
+    margin-bottom:16px;
+  }
+  .field label{
+    display:block;
+    font-size:12px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#a98a94;
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:var(--cream);
+    font-size:15px;
+    color:var(--charcoal);
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .field input:focus{
+    border-color:var(--rose);
+    box-shadow:0 0 0 3px rgba(182,100,125,0.15);
+  }
+  .btn-primary{
+    width:100%;
+    padding:13px 14px;
+    border:none;
+    border-radius:10px;
+    background:var(--rose-deep);
+    color:#fff;
+    font-size:15px;
+    letter-spacing:0.03em;
+    margin-top:8px;
+    transition:background .15s, transform .1s;
+  }
+  .btn-primary:hover{background:#742f45;}
+  .btn-primary:active{transform:scale(0.98);}
+  .login-error{
+    color:var(--terracotta);
+    font-size:13px;
+    margin:14px 0 0;
+    min-height:16px;
+  }
+
+  /* ---------- APP SHELL ---------- */
+  #app{min-height:100vh;}
+  header.topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:26px 40px;
+    border-bottom:1px solid var(--line);
+    background:#fff;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-mark{
+    width:38px;height:38px;border-radius:50%;
+    background:var(--blush);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .brand-mark svg{width:17px;height:17px;stroke:var(--rose-deep);}
+  .brand h1{
+    font-size:24px;margin:0;color:var(--rose-deep);line-height:1;
+  }
+  .brand span.tag{
+    display:block;
+    font-family:'Jost',sans-serif;
+    font-size:11px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#b799a1;
+    margin-top:2px;
+  }
+  .top-actions{display:flex;align-items:center;gap:10px;}
+  .btn-ghost{
+    padding:9px 16px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--rose-deep);
+    font-size:13px;
+    letter-spacing:0.02em;
+  }
+  .btn-ghost:hover{border-color:var(--rose);background:var(--cream);}
+  .btn-solid{
+    padding:10px 18px;
+    border-radius:9px;
+    border:none;
+    background:var(--rose-deep);
+    color:#fff;
+    font-size:13px;
+    letter-spacing:0.02em;
+  }
+  .btn-solid:hover{background:#742f45;}
+
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:36px 40px 80px;
+  }
+
+  /* summary cards */
+  .summary{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-bottom:34px;
+  }
+  .summary-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:20px 22px;
+  }
+  .summary-card .label{
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:#b799a1;
+    margin-bottom:8px;
+  }
+  .summary-card .value{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:26px;
+    color:var(--charcoal);
+  }
+  .summary-card.alert .value{color:var(--terracotta);}
+  .summary-card.ok .value{color:var(--sage);}
+
+  /* controls */
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  .search-wrap{
+    flex:1;
+    min-width:220px;
+    position:relative;
+  }
+  .search-wrap input{
+    width:100%;
+    padding:11px 14px 11px 38px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:14px;
+    outline:none;
+  }
+  .search-wrap input:focus{border-color:var(--rose);}
+  .search-wrap svg{
+    position:absolute;left:13px;top:50%;transform:translateY(-50%);
+    width:15px;height:15px;stroke:#c9a8b1;
+  }
+  .filter-pills{display:flex;gap:8px;}
+  .pill{
+    padding:8px 14px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:12.5px;
+    letter-spacing:0.02em;
+    color:#8a6b73;
+  }
+  .pill.active{
+    background:var(--rose-deep);
+    border-color:var(--rose-deep);
+    color:#fff;
+  }
+
+  /* list */
+  #list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .empty-state{
+    text-align:center;
+    padding:70px 20px;
+    color:#b799a1;
+  }
+  .empty-state svg{width:46px;height:46px;stroke:#e3b9c4;margin-bottom:14px;}
+  .empty-state h3{margin:0 0 6px;color:var(--rose-deep);font-size:22px;}
+  .empty-state p{margin:0;font-size:14px;}
+
+  /* tag card */
+  .tag-card{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    display:flex;
+    align-items:stretch;
+    overflow:hidden;
+    transition:box-shadow .15s, transform .15s;
+  }
+  .tag-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+  .tag-card.overdue{border-color:#e6b3a6;}
+  .tag-punch{
+    width:46px;
+    flex-shrink:0;
+    background:var(--blush);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
+  }
+  .tag-punch::after{
+    content:"";
+    width:10px;height:10px;
+    border-radius:50%;
+    background:var(--cream);
+    border:1px solid var(--line);
+  }
+  .tag-card.paid .tag-punch{background:#e4ecdf;}
+  .tag-card.overdue .tag-punch{background:#f3d7cc;}
+  .tag-body{
+    flex:1;
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+  .tag-main{min-width:160px;flex:1;}
+  .tag-main .cliente{
+    font-size:19px;
+    font-family:'Cormorant Garamond',serif;
+    font-weight:600;
+    color:var(--charcoal);
+    margin:0 0 2px;
+  }
+  .tag-main .peca{
+    font-size:13px;
+    color:#8a6b73;
+  }
+  .tag-main .peca .tam{
+    display:inline-block;
+    margin-left:6px;
+    padding:1px 8px;
+    border-radius:8px;
+    background:var(--cream);
+    border:1px solid var(--line);
+    font-size:11px;
+    letter-spacing:0.03em;
+  }
+  .tag-meta{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .meta-block{text-align:left;}
+  .meta-block .m-label{
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#c2a2ab;
+    margin-bottom:3px;
+  }
+  .meta-block .m-value{
+    font-size:15px;
+  }
+  .valor-value{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--rose-deep);
+  }
+  .status-badge{
+    font-size:11px;
+    letter-spacing:0.04em;
+    padding:5px 12px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .status-badge.pendente{background:var(--cream);color:var(--rose-deep);border:1px solid var(--line);}
+  .status-badge.pago{background:#e4ecdf;color:var(--sage);}
+  .status-badge.vencido{background:#f3d7cc;color:var(--terracotta);}
+  .tag-actions{
+    display:flex;
+    gap:6px;
+    align-items:center;
+  }
+  .icon-btn{
+    width:32px;height:32px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{background:var(--cream);}
+  .icon-btn svg{width:14px;height:14px;stroke:#8a6b73;}
+  .icon-btn.danger:hover{background:#f9e4de;}
+  .icon-btn.danger:hover svg{stroke:var(--terracotta);}
+  .icon-btn.confirm:hover{background:#e4ecdf;}
+  .icon-btn.confirm:hover svg{stroke:var(--sage);}
+
+  /* footer / backup */
+  footer.appfoot{
+    max-width:1080px;
+    margin:20px auto 0;
+    padding:20px 40px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+    color:#c2a2ab;
+    font-size:12.5px;
+  }
+  .backup-actions{display:flex;gap:10px;}
+  .backup-actions button, .backup-actions label{
+    font-size:12.5px;
+    padding:8px 14px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:#8a6b73;
+  }
+  .backup-actions button:hover, .backup-actions label:hover{border-color:var(--rose);color:var(--rose-deep);}
+
+  /* modal */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(51,38,43,0.4);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay[hidden]{display:none;}
+  .modal{
+    background:#fff;
+    border-radius:18px;
+    padding:32px;
+    width:100%;
+    max-width:440px;
+    box-shadow:var(--shadow);
+  }
+  .modal h2{
+    margin:0 0 22px;
+    color:var(--rose-deep);
+    font-size:24px;
+  }
+  .modal-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .modal-grid .full{grid-column:1/-1;}
+  .modal-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:26px;
+  }
+  .btn-text{
+    padding:10px 16px;
+    border:none;background:none;
+    color:#8a6b73;font-size:14px;
+  }
+  .btn-text:hover{color:var(--rose-deep);}
+
+  @media (max-width:640px){
+    header.topbar{padding:20px;}
+    main{padding:24px 16px 60px;}
+    .summary{grid-template-columns:1fr;}
+    .tag-body{padding:14px;}
+    .tag-meta{gap:14px;}
+    .modal-grid{grid-template-columns:1fr;}
+    footer.appfoot{padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M20 12c-1.5 3.5-4.8 6-8 6s-6.5-2.5-8-6c1.5-3.5 4.8-6 8-6s6.5 2.5 8 6z"/></svg>
+    </div>
+    <h1>Crediário</h1>
+    <p class="sub">Acesso restrito</p>
+    <form id="login-form">
+      <div class="field">
+        <label for="user">Usuário</label>
+        <input type="text" id="user" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="pass">Senha</label>
+        <input type="password" id="pass" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary">Entrar</button>
+      <p class="login-error" id="login-error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.5L16 10l-6 6-4-4v6.5a2 2 0 0 0 2 2h10.9a2 2 0 0 0 1.5-.7z"/><path d="M4 10V6a2 2 0 0 1 2-2h5l9 9"/></svg>
+      </div>
+      <div>
+        <h1>Crediário</h1>
+        <span class="tag">Vendas a prazo</span>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn-ghost" id="btn-logout">Sair</button>
+      <button class="btn-solid" id="btn-new">+ Nova venda</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="summary">
+      <div class="summary-card">
+        <div class="label">A receber</div>
+        <div class="value mono" id="sum-pendente">R$ 0,00</div>
+      </div>
+      <div class="summary-card alert">
+        <div class="label">Vencido</div>
+        <div class="value mono" id="sum-vencido">R$ 0,00</div>
+      </div>
+      <div class="summary-card ok">
+        <div class="label">Recebido</div>
+        <div class="value mono" id="sum-pago">R$ 0,00</div>
+      </div>
+    </section>
+
+    <div class="controls">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="search" placeholder="Buscar por cliente...">
+      </div>
+      <div class="filter-pills" id="filter-pills">
+        <button class="pill active" data-filter="todos">Todos</button>
+        <button class="pill" data-filter="pendente">Pendentes</button>
+        <button class="pill" data-filter="vencido">Vencidos</button>
+        <button class="pill" data-filter="pago">Pagos</button>
+      </div>
+    </div>
+
+    <section id="list"></section>
+  </main>
+
+  <footer class="appfoot">
+    <span>Os dados ficam salvos neste navegador.</span>
+    <div class="backup-actions">
+      <button id="btn-export">Baixar backup (.json)</button>
+      <label for="import-file">Importar backup</label>
+      <input type="file" id="import-file" accept="application/json" style="display:none">
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== MODAL ===================== -->
+<div class="overlay" id="overlay" hidden>
+  <div class="modal">
+    <h2 id="modal-title">Nova venda</h2>
+    <form id="sale-form">
+      <input type="hidden" id="sale-id">
+      <div class="modal-grid">
+        <div class="field full">
+          <label for="f-cliente">Nome da cliente</label>
+          <input type="text" id="f-cliente" required>
+        </div>
+        <div class="field full">
+          <label for="f-peca">Peça vendida</label>
+          <input type="text" id="f-peca" placeholder="Ex.: Vestido midi floral" required>
+        </div>
+        <div class="field">
+          <label for="f-tamanho">Tamanho</label>
+          <input type="text" id="f-tamanho" placeholder="Ex.: M" required>
+        </div>
+        <div class="field">
+          <label for="f-valor">Valor (R$)</label>
+          <input type="number" id="f-valor" min="0" step="0.01" placeholder="0,00" required>
+        </div>
+        <div class="field full">
+          <label for="f-vencimento">Vencimento do prazo</label>
+          <input type="date" id="f-vencimento" required>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-text" id="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn-primary" style="width:auto;">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- CONFIG ---------- */
+  var CREDENTIALS = { user: "ana", pass: "1204" };
+  var STORAGE_KEY = "crediario_vendas_v1";
+  var SESSION_KEY = "crediario_sessao_v1";
+
+  /* ---------- LOGIN ---------- */
+  var loginScreen = document.getElementById("login-screen");
+  var appEl = document.getElementById("app");
+  var loginForm = document.getElementById("login-form");
+  var loginError = document.getElementById("login-error");
+
+  function isLoggedIn(){
+    return localStorage.getItem(SESSION_KEY) === "1";
+  }
+
+  function showApp(){
+    loginScreen.hidden = true;
+    appEl.hidden = false;
+    render();
+  }
+
+  function showLogin(){
+    appEl.hidden = true;
+    loginScreen.hidden = false;
+  }
+
+  loginForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    var u = document.getElementById("user").value.trim();
+    var p = document.getElementById("pass").value;
+    if(u === CREDENTIALS.user && p === CREDENTIALS.pass){
+      localStorage.setItem(SESSION_KEY, "1");
+      loginError.textContent = "";
+      loginForm.reset();
+      showApp();
+    } else {
+      loginError.textContent = "Usuário ou senha incorretos.";
+    }
+  });
+
+  document.getElementById("btn-logout").addEventListener("click", function(){
+    localStorage.removeItem(SESSION_KEY);
+    showLogin();
+  });
+
+  if(isLoggedIn()){
+    showApp();
+  }
+
+  /* ---------- DATA ---------- */
+  function loadSales(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(err){
+      return [];
+    }
+  }
+
+  function saveSales(list){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  var sales = loadSales();
+
+  function uid(){
+    return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  }
+
+  function todayStr(){
+    var d = new Date();
+    d.setHours(0,0,0,0);
+    return d.toISOString().slice(0,10);
+  }
+
+  function isOverdue(sale){
+    return sale.status === "pendente" && sale.vencimento < todayStr();
+  }
+
+  function fmtMoney(n){
+    return Number(n||0).toLocaleString("pt-BR", { style:"currency", currency:"BRL" });
+  }
+
+  function fmtDate(iso){
+    if(!iso) return "-";
+    var parts = iso.split("-");
+    return parts[2] + "/" + parts[1] + "/" + parts[0];
+  }
+
+  /* ---------- RENDER ---------- */
+  var listEl = document.getElementById("list");
+  var searchInput = document.getElementById("search");
+  var filterPills = document.getElementById("filter-pills");
+  var currentFilter = "todos";
+  var currentSearch = "";
+
+  var iconEdit = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  var iconTrash = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+  var iconCheck = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+  var iconUndo = '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-6.7L3 9"/></svg>';
+
+  function statusOf(sale){
+    if(sale.status === "pago") return "pago";
+    if(isOverdue(sale)) return "vencido";
+    return "pendente";
+  }
+
+  function render(){
+    var q = currentSearch.trim().toLowerCase();
+    var filtered = sales.filter(function(s){
+      var st = statusOf(s);
+      if(currentFilter !== "todos" && st !== currentFilter) return false;
+      if(q && s.cliente.toLowerCase().indexOf(q) === -1) return false;
+      return true;
+    });
+
+    filtered.sort(function(a,b){
+      return a.vencimento < b.vencimento ? -1 : a.vencimento > b.vencimento ? 1 : 0;
+    });
+
+    listEl.innerHTML = "";
+
+    if(filtered.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 14.5L16 10l-6 6-4-4v6.5a2 2 0 0 0 2 2h10.9a2 2 0 0 0 1.5-.7z"/><path d="M4 10V6a2 2 0 0 1 2-2h5l9 9"/></svg>' +
+        '<h3>Nenhuma venda por aqui</h3>' +
+        '<p>Cadastre a primeira venda a prazo para começar.</p>';
+      listEl.appendChild(empty);
+    } else {
+      filtered.forEach(function(sale){
+        listEl.appendChild(buildCard(sale));
+      });
+    }
+
+    updateSummary();
+  }
+
+  function buildCard(sale){
+    var st = statusOf(sale);
+    var card = document.createElement("div");
+    card.className = "tag-card" + (st === "vencido" ? " overdue" : "") + (st === "pago" ? " paid" : "");
+
+    var badgeLabel = st === "pago" ? "Pago" : st === "vencido" ? "Vencido" : "Pendente";
+
+    card.innerHTML =
+      '<div class="tag-punch"></div>' +
+      '<div class="tag-body">' +
+        '<div class="tag-main">' +
+          '<p class="cliente">' + escapeHtml(sale.cliente) + '</p>' +
+          '<p class="peca">' + escapeHtml(sale.peca) + '<span class="tam">' + escapeHtml(sale.tamanho) + '</span></p>' +
+        '</div>' +
+        '<div class="tag-meta">' +
+          '<div class="meta-block">' +
+            '<div class="m-label">Valor</div>' +
+            '<div class="m-value valor-value">' + fmtMoney(sale.valor) + '</div>' +
+          '</div>' +
+          '<div class="meta-block">' +
+            '<div class="m-label">Vencimento</div>' +
+            '<div class="m-value">' + fmtDate(sale.vencimento) + '</div>' +
+          '</div>' +
+          '<span class="status-badge ' + st + '">' + badgeLabel + '</span>' +
+        '</div>' +
+        '<div class="tag-actions">' +
+          '<button class="icon-btn ' + (st === "pago" ? "" : "confirm") + '" data-action="toggle" title="' + (st === "pago" ? "Marcar como pendente" : "Marcar como pago") + '">' + (st === "pago" ? iconUndo : iconCheck) + '</button>' +
+          '<button class="icon-btn" data-action="edit" title="Editar">' + iconEdit + '</button>' +
+          '<button class="icon-btn danger" data-action="delete" title="Excluir">' + iconTrash + '</button>' +
+        '</div>' +
+      '</div>';
+
+    card.querySelector('[data-action="toggle"]').addEventListener("click", function(){
+      sale.status = sale.status === "pago" ? "pendente" : "pago";
+      saveSales(sales);
+      render();
+    });
+    card.querySelector('[data-action="edit"]').addEventListener("click", function(){
+      openModal(sale);
+    });
+    card.querySelector('[data-action="delete"]').addEventListener("click", function(){
+      if(confirm('Excluir a venda de "' + sale.cliente + '"? Essa ação não pode ser desfeita.')){
+        sales = sales.filter(function(s){ return s.id !== sale.id; });
+        saveSales(sales);
+        render();
+      }
+    });
+
+    return card;
+  }
+
+  function escapeHtml(str){
+    var div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
+  function updateSummary(){
+    var pendente = 0, vencido = 0, pago = 0;
+    sales.forEach(function(s){
+      var v = Number(s.valor) || 0;
+      if(s.status === "pago"){ pago += v; }
+      else if(isOverdue(s)){ vencido += v; pendente += v; }
+      else { pendente += v; }
+    });
+    document.getElementById("sum-pendente").textContent = fmtMoney(pendente);
+    document.getElementById("sum-vencido").textContent = fmtMoney(vencido);
+    document.getElementById("sum-pago").textContent = fmtMoney(pago);
+  }
+
+  searchInput.addEventListener("input", function(){
+    currentSearch = searchInput.value;
+    render();
+  });
+
+  filterPills.addEventListener("click", function(e){
+    var btn = e.target.closest(".pill");
+    if(!btn) return;
+    filterPills.querySelectorAll(".pill").forEach(function(p){ p.classList.remove("active"); });
+    btn.classList.add("active");
+    currentFilter = btn.getAttribute("data-filter");
+    render();
+  });
+
+  /* ---------- MODAL / FORM ---------- */
+  var overlay = document.getElementById("overlay");
+  var modalTitle = document.getElementById("modal-title");
+  var saleForm = document.getElementById("sale-form");
+  var fId = document.getElementById("sale-id");
+  var fCliente = document.getElementById("f-cliente");
+  var fPeca = document.getElementById("f-peca");
+  var fTamanho = document.getElementById("f-tamanho");
+  var fValor = document.getElementById("f-valor");
+  var fVencimento = document.getElementById("f-vencimento");
+
+  function openModal(sale){
+    saleForm.reset();
+    if(sale){
+      modalTitle.textContent = "Editar venda";
+      fId.value = sale.id;
+      fCliente.value = sale.cliente;
+      fPeca.value = sale.peca;
+      fTamanho.value = sale.tamanho;
+      fValor.value = sale.valor;
+      fVencimento.value = sale.vencimento;
+    } else {
+      modalTitle.textContent = "Nova venda";
+      fId.value = "";
+      fVencimento.value = todayStr();
+    }
+    overlay.hidden = false;
+    setTimeout(function(){ fCliente.focus(); }, 50);
+  }
+
+  function closeModal(){
+    overlay.hidden = true;
+  }
+
+  document.getElementById("btn-new").addEventListener("click", function(){ openModal(null); });
+  document.getElementById("btn-cancel").addEventListener("click", closeModal);
+  overlay.addEventListener("click", function(e){ if(e.target === overlay) closeModal(); });
+
+  saleForm.addEventListener("submit", function(e){
+    e.preventDefault();
+    var id = fId.value;
+    var data = {
+      cliente: fCliente.value.trim(),
+      peca: fPeca.value.trim(),
+      tamanho: fTamanho.value.trim(),
+      valor: parseFloat(fValor.value) || 0,
+      vencimento: fVencimento.value
+    };
+
+    if(id){
+      var existing = sales.find(function(s){ return s.id === id; });
+      if(existing){
+        Object.assign(existing, data);
+      }
+    } else {
+      data.id = uid();
+      data.status = "pendente";
+      data.criadoEm = new Date().toISOString();
+      sales.push(data);
+    }
+
+    saveSales(sales);
+    closeModal();
+    render();
+  });
+
+  /* ---------- BACKUP ---------- */
+  document.getElementById("btn-export").addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(sales, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var stamp = todayStr();
+    a.href = url;
+    a.download = "crediario-backup-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("import-file").addEventListener("change", function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try{
+        var imported = JSON.parse(evt.target.result);
+        if(!Array.isArray(imported)) throw new Error("Formato inválido");
+        var ok = confirm("Importar " + imported.length + " venda(s)? Isso vai substituir os dados salvos neste navegador.");
+        if(ok){
+          sales = imported;
+          saveSales(sales);
+          render();
+        }
+      }catch(err){
+        alert("Não foi possível importar este arquivo. Verifique se é um backup válido.");
+      }
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+})();
+</script>
+</body>
+</html>
